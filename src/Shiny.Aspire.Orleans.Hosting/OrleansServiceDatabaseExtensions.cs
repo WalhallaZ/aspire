@@ -35,7 +35,7 @@ public static class OrleansServiceDatabaseExtensions
                 }
 
                 var script = ScriptLoader.LoadCombinedScript(dbType, features);
-                if (string.IsNullOrWhiteSpace(script))
+                if (script.Count == 0)
                 {
                     logger.LogWarning("No Orleans SQL scripts found for {DatabaseType}", dbType);
                     return;
@@ -43,7 +43,7 @@ public static class OrleansServiceDatabaseExtensions
 
                 try
                 {
-                    await ScriptRunner.RunAsync(connectionString, dbType, script, cancellationToken);
+                    await ScriptRunner.RunAsync(connectionString, dbType, script, logger, cancellationToken);
                     logger.LogInformation("Orleans database setup completed successfully for '{ResourceName}'", dbResourceName);
                 }
                 catch (Exception ex)

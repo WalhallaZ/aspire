@@ -1,18 +1,21 @@
 <Project>
     <PropertyGroup>
-        <AspireVersion>13.1.2</AspireVersion>
-        <OrleansVersion>10.0.1</OrleansVersion>
+        <AspireVersion>13.4.6</AspireVersion>
+        <OrleansVersion>10.2.2</OrleansVersion>
     </PropertyGroup>
     <ItemGroup>
         <!-- Aspire Hosting -->
         <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)"/>
         <PackageVersion Include="Aspire.Hosting.AppHost" Version="$(AspireVersion)"/>
-        <PackageVersion Include="Aspire.Hosting.Docker" Version="13.1.2-preview.1.26125.13"/>
+        <PackageVersion Include="Aspire.Hosting.Docker" Version="$(AspireVersion)"/>
         <PackageVersion Include="Aspire.Hosting.Orleans" Version="$(AspireVersion)"/>
         <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="$(AspireVersion)"/>
         <PackageVersion Include="Aspire.Hosting.SqlServer" Version="$(AspireVersion)"/>
         <PackageVersion Include="Aspire.Hosting.MySql" Version="$(AspireVersion)"/>
         <!-- Orleans -->
+        <PackageVersion Include="dbup-mysql" Version="6.1.0"/>
+        <PackageVersion Include="dbup-postgresql" Version="7.0.1"/>
+        <PackageVersion Include="dbup-sqlserver" Version="7.2.0"/>
         <PackageVersion Include="Microsoft.Orleans.Server" Version="$(OrleansVersion)"/>
         <PackageVersion Include="Microsoft.Orleans.Client" Version="$(OrleansVersion)"/>
         <PackageVersion Include="Microsoft.Orleans.Clustering.AdoNet" Version="$(OrleansVersion)"/>
@@ -20,16 +23,16 @@
         <PackageVersion Include="Microsoft.Orleans.Reminders.AdoNet" Version="$(OrleansVersion)"/>
         <PackageVersion Include="Microsoft.Orleans.Dashboard" Version="$(OrleansVersion)"/>
         <!-- ADO.NET Providers -->
-        <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.4"/>
-        <PackageVersion Include="Npgsql" Version="10.0.1"/>
-        <PackageVersion Include="MySqlConnector" Version="2.5.0"/>
+        <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.2"/>
+        <PackageVersion Include="Npgsql" Version="10.0.3"/>
+        <PackageVersion Include="MySqlConnector" Version="2.6.1"/>
         <!-- Build -->
-        <PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50"/>
+        <PackageVersion Include="Nerdbank.GitVersioning" Version="3.10.91"/>
         <!-- Testing -->
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
         <PackageVersion Include="xunit" Version="2.9.3"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
-        <PackageVersion Include="NSubstitute" Version="5.3.0"/>
+        <PackageVersion Include="NSubstitute" Version="6.0.0"/>
     </ItemGroup>
 </Project>

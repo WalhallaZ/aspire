@@ -1,55 +1,45 @@
-using System.Data.Common;
-using Microsoft.Data.SqlClient;
-using MySqlConnector;
-using Npgsql;
+using DbUp;
+using DbUp.Builder;
+using DbUp.Engine;
+using Microsoft.Extensions.Logging;
 
 namespace Shiny.Aspire.Orleans.Hosting.Internal;
 
 internal static class ScriptRunner
 {
-    public static async Task RunAsync(
+    public static Task RunAsync(
         string connectionString,
         DatabaseType dbType,
-        string script,
+        IEnumerable<SqlScriptSource> scripts,
+        ILogger logger,
         CancellationToken cancellationToken = default)
     {
-        await using var connection = CreateConnection(dbType, connectionString);
-        await connection.OpenAsync(cancellationToken);
+        var result = CreateConnection(dbType, connectionString)
+            .WithVariablesDisabled()
+            .WithScripts(scripts.Select((s, i) => new SqlScript(s.Name, s.Script)
+            {
+                SqlScriptOptions =
+                {
+                    RunGroupOrder = i
+                }
+            }))
+            .LogTo(logger)
+            .Build()
+            .PerformUpgrade();
 
-        var batches = SplitBatches(script, dbType);
-
-        foreach (var batch in batches)
+        if (!result.Successful)
         {
-            var trimmed = batch.Trim();
-            if (string.IsNullOrEmpty(trimmed))
-                continue;
-
-            await using var command = connection.CreateCommand();
-            command.CommandText = trimmed;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            return Task.FromException(result.Error ?? new Exception($"Error running script: {result.ErrorScript}"));
         }
+
+        return Task.CompletedTask;
     }
 
-    private static DbConnection CreateConnection(DatabaseType dbType, string connectionString) => dbType switch
+    private static UpgradeEngineBuilder CreateConnection(DatabaseType dbType, string connectionString) => dbType switch
     {
-        DatabaseType.SqlServer => new SqlConnection(connectionString),
-        DatabaseType.PostgreSQL => new NpgsqlConnection(connectionString),
-        DatabaseType.MySql => new MySqlConnection(connectionString),
+        DatabaseType.SqlServer => DeployChanges.To.SqlDatabase(connectionString),
+        DatabaseType.PostgreSQL => DeployChanges.To.PostgresqlDatabase(connectionString),
+        DatabaseType.MySql => DeployChanges.To.MySqlDatabase(connectionString),
         _ => throw new ArgumentOutOfRangeException(nameof(dbType))
     };
-
-    internal static IEnumerable<string> SplitBatches(string script, DatabaseType dbType)
-    {
-        if (dbType == DatabaseType.SqlServer)
-        {
-            // SQL Server uses GO as a batch separator
-            return System.Text.RegularExpressions.Regex.Split(
-                script,
-                @"^\s*GO\s*$",
-                System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        }
-
-        // PostgreSQL and MySQL can execute the whole script as one batch
-        return [script];
-    }
 }
